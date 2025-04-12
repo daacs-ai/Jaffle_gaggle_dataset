@@ -1,0 +1,14 @@
+jaffle_gaggle:
+  target: dev
+  outputs:
+    dev:
+      type: clickhouse
+      schema: jaffle_gaggle
+      
+      host: 3.108.206.137
+      port: 9000
+      user: varshith
+      password: varshith
+      secure: False
+      verify: False
+      retries: 1

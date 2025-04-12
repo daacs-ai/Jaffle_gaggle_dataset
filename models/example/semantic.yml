@@ -1,0 +1,55 @@
+version: 1
+
+semantic_models:
+  - name: fact_deals
+    description: Aggregated deal metrics grouped by company domain and deal stage.
+    model: ref('fact_deals')
+    entities:
+      - name: company_domain
+        type: primary
+      - name: deal_stage
+        type: natural
+    measures:
+      - name: deal_count
+        description: Total number of deals.
+        agg: sum
+      - name: total_deal_amount
+        description: Sum of deal amounts.
+        agg: sum
+      - name: first_close_date
+        description: Earliest deal closing date.
+        agg: min
+      - name: last_close_date
+        description: Most recent deal closing date.
+        agg: max
+    dimensions:
+      - name: deal_stage
+        type: categorical
+      - name: company_domain
+        type: categorical
+
+  - name: fact_events
+    description: Aggregated user events, grouped by event name.
+    model: ref('fact_events')
+    entities:
+      - name: user_id
+        type: primary
+      - name: user_email
+        type: natural
+      - name: gaggle_id
+        type: foreign
+    measures:
+      - name: event_count
+        description: Total number of times this event occurred.
+        agg: sum
+      - name: first_event_time
+        description: Timestamp of the first event occurrence.
+        agg: min
+      - name: last_event_time
+        description: Timestamp of the last event occurrence.
+        agg: max
+    dimensions:
+      - name: event_name
+        type: categorical
+      - name: user_email
+        type: categorical

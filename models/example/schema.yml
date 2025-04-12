@@ -1,0 +1,103 @@
+
+version: 2
+sources:
+  - name: jaffle_gaggle
+    description: Source schema in ClickHouse
+    tables:
+      - name: raw_user
+      - name: raw_gaggle
+      - name: raw_event
+      - name: merged_user
+      - name: merged_company_domain
+      - name: deals
+
+models:
+  - name: metricflow_time_spine
+    description: A continuous spine of daily dates used by the dbt Semantic Layer for time-based aggregations.
+    columns:
+      - name: date_day
+        description: The date value (daily grain).
+        
+  - name: dim_users
+    description: Contains user information, including optionally updated emails and gaggle association.
+    columns:
+      - name: user_id
+        description: Unique identifier for the user.
+      - name: user_name
+        description: Name of the user.
+      - name: user_email
+        description: Updated user email if available, otherwise original.
+      - name: gaggle_id
+        description: Identifier for the gaggle the user belongs to.
+      - name: user_created_at
+        description: Timestamp when the user was created.
+
+  - name: dim_gaggles
+    description: List of gaggles with their creation details.
+    columns:
+      - name: gaggle_id
+        description: Unique identifier for the gaggle.
+      - name: gaggle_name
+        description: Name of the gaggle.
+      - name: gaggle_created_at
+        description: Timestamp when the gaggle was created.
+
+  - name: dim_deals
+    description: Raw deal data enriched with extracted company domains.
+    columns:
+      - name: deal_name
+        description: Name of the deal.
+      - name: deal_stage
+        description: Stage of the deal (e.g. won, lost, prospecting).
+      - name: close_date
+        description: Date the deal was closed.
+      - name: amount
+        description: Deal amount in dollars, parsed from string.
+      - name: original_deal_domain
+        description: Domain extracted from the deal email.
+
+  - name: dim_companies
+    description: Master list of all company domains based on user and merged domain sources.
+    columns:
+      - name: company_domain
+        description: Domain name of the company, derived from user email or provided mapping.
+
+  - name: dim_company_domains
+    description:  Duplicate or old version of dim_companies.
+    columns:
+      - name: company_domain
+        description: Domain name of the company.
+
+  - name: fact_deals
+    description: Aggregated deal metrics grouped by company domain and deal stage.
+    columns:
+      - name: company_domain
+        description: Domain name of the company associated with the deal.
+      - name: deal_stage
+        description: Deal stage category.
+      - name: deal_count
+        description: Total number of deals.
+      - name: total_deal_amount
+        description: Sum of deal amounts.
+      - name: first_close_date
+        description: Earliest deal closing date.
+      - name: last_close_date
+        description: Most recent deal closing date.
+
+  - name: fact_events
+    description: Aggregated user events, grouped by event name.
+    columns:
+      - name: user_id
+        description: Unique identifier of the user.
+      - name: user_email
+        description: Email of the user.
+      - name: gaggle_id
+        description: Gaggle ID to which the user belongs.
+      - name: event_name
+        description: Name of the event.
+      - name: event_count
+        description: Total number of times this event occurred.
+      - name: first_event_time
+        description: Timestamp of the first event occurrence.
+      - name: last_event_time
+        description: Timestamp of the last event occurrence.
